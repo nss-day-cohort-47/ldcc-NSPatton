@@ -2,13 +2,13 @@ console.log('yum, yum, yum');
 
 import { LoginForm } from "./auth/LoginForm.js";
 import { RegisterForm } from "./auth/RegisterForm.js";
-import { NavBar } from "./nav/NavBar.js";
+import { NavBar, populateToppings, renderToppings } from "./nav/NavBar.js";
 import { SnackList } from "./snacks/SnackList.js";
 import { SnackDetails } from "./snacks/SnackDetails.js";
 import { Footer } from "./nav/Footer.js";
 import {
 	logoutUser, setLoggedInUser, loginUser, registerUser, getLoggedInUser,
-	getSnacks, getSingleSnack, getToppings
+	getSnacks, getSingleSnack, getToppings, getSnackToppings, useSnackToppingsCollection, snackByTopping
 } from "./data/apiManager.js";
 
 
@@ -84,6 +84,22 @@ applicationElement.addEventListener("click", event => {
 	}
 })
 
+applicationElement.addEventListener("change", event => {
+	event.preventDefault();
+	if (event.target.id === "toppingDropdown") {
+		let toppingValue = event.target.value;
+		snackByTopping(toppingValue)
+		.then(response => {
+			let selectedToppingArray = [];
+			response.forEach(topping => {
+				selectedToppingArray.push(topping.snack)
+			})
+			const listElement = document.querySelector("#mainContent")
+			listElement.innerHTML = SnackList(selectedToppingArray)
+		})
+	}
+	})
+
 const showDetails = (snackObj, snackToppings) => {
 	const listElement = document.querySelector("#mainContent");
 	listElement.innerHTML = SnackDetails(snackObj, snackToppings);
@@ -108,6 +124,7 @@ const showLoginRegister = () => {
 }
 
 const showNavBar = () => {
+
 	applicationElement.innerHTML += NavBar();
 }
 
@@ -118,17 +135,27 @@ const showSnackList = () => {
 	})
 }
 
+// const showToppingsList = () => {
+// 	getSnackToppings().then(allToppings =>{
+// 		const toppingElement = document.querySelector(".toppingDropdown")
+// 		toppingElement.innerHTML = useSnackToppingsCollection(allToppings);
+// 	})
+// }
+
 const showFooter = () => {
 	applicationElement.innerHTML += Footer();
 }
 
 const startLDSnacks = () => {
-	applicationElement.innerHTML = "";
+	getSnackToppings()
+	.then(() => {
+		applicationElement.innerHTML = "";
 	showNavBar();
 	applicationElement.innerHTML += `<div id="mainContent"></div>`;
 	showSnackList();
 	showFooter();
-
+	populateToppings();
+	})
 }
 
 checkForUser();
