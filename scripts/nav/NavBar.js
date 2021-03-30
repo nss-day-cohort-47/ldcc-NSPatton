@@ -1,4 +1,24 @@
 import { getLoggedInUser } from "../data/apiManager.js"
+import { useSnackToppingsCollection, getSnackToppings } from "../data/apiManager.js"
+
+
+export const renderToppings = () => {
+	const toppingList = useSnackToppingsCollection();
+
+	let toppingOptions = toppingList.map(singleTopping => {
+		return `<option value="${singleTopping.id}">${singleTopping.name}</option>`
+	})
+	return toppingOptions
+}
+
+
+export const populateToppings = () => {
+	getSnackToppings()
+		.then(() => {
+			const selectTopping = useSnackToppingsCollection()
+			renderToppings(selectTopping);
+		})
+}
 
 export const NavBar = () => {
 	//only show navItems and addTypeButton if user is logged in
@@ -13,12 +33,10 @@ export const NavBar = () => {
 			<button class="btn btn-info" type="button" id="allSnacks">All Snacks</button>
 		</li>
 		<li class="nav-item ms-1">
-			<select class="form-select form-select btn-info" aria-label="Select A Topping">
-				<option selected>Select A Topping</option>
-				<option value="1">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
-			</select>
+		<div class ="toppingDropdown"  aria-label="Select A Topping">
+		<select id="toppingDropdown" class = "btn-info toppingDropdown">${renderToppings()}</select>
+				
+		</div>
 		</li>
 		<li class="nav-item ms-1">
 			<button class="btn btn-info" type="button" id="logout">Logout</button>
